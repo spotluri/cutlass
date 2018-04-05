@@ -69,8 +69,9 @@ endif
 
 INC += -I$(TEST_DIR)
 INC += -I$(BASE_DIR)
+INC += -I/home/agoswami/nvshmem-repos/rty/install00/include
 
-LIBS += -lcublas
+LIBS += -lcublas -L/home/agoswami/nvshmem-repos/rty/install00/lib -lshmem -lcuda
 
 #-------------------------------------------------------------------------------
 # Preprocessor definitions

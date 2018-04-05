@@ -39,6 +39,8 @@
 #include <cutlass/util/debug.h>
 #include "../cutlass/util/matrix_transform.h"
 #include "half.h"
+#include "shmem.h"
+#include "shmemx.h"
 
 
 namespace cutlass {
@@ -98,7 +100,12 @@ public:
         _device_id(0)
     {
         _h_data.resize(_m * _n, 0);
-        CUDA_PERROR_EXIT(cudaMalloc((void ** )&_d_data, sizeof(value_t) * _m * _n));
+        //CUDA_PERROR_EXIT(cudaMalloc((void ** )&_d_data, sizeof(value_t) * _m * _n));
+        _d_data = (value_t *)shmem_malloc(sizeof(value_t) * _m * _n);
+        if (!_d_data) { 
+          printf("shmem_malloc failed\n");
+          exit(1);
+        }
         CUDA_PERROR_EXIT(cudaGetDevice(&_device_id));
     }
 
@@ -107,7 +114,8 @@ public:
     {
         if (_d_data)
         {
-            CUDA_PERROR_EXIT(cudaFree(_d_data));
+            //CUDA_PERROR_EXIT(cudaFree(_d_data));
+            shmem_free(_d_data);
         }
     }
 

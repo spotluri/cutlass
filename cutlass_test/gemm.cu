@@ -429,6 +429,12 @@ bool test(
  */
 int main(int argc, const char **argv)
 {
+    shmem_init();
+    int mype, npes;
+    npes = shmem_n_pes();
+    mype = shmem_my_pe();
+    printf("done shmem_init PE %d of %d PEs\n", mype, npes);
+
     //
     // Problem type (compiler-supplied so we don't compile everything)
     //
@@ -479,6 +485,8 @@ int main(int argc, const char **argv)
 
     // Initialize command line
     command_line args(argc, argv);
+    //XXX: cudaSetDevice is called at this point
+    shmem_barrier_all();
 
     int m_factor    = args.device_prop.multiProcessorCount * 128;
     int m           = round_nearest(4096, m_factor);
@@ -566,6 +574,8 @@ int main(int argc, const char **argv)
 
     // Cleanup
     cublasDestroy(g_cublas_handle);
+    shmem_barrier_all();
+    shmem_finalize();
 
     return test_error;
 }
